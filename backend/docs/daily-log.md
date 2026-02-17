@@ -56,4 +56,37 @@ Focus only on structure and data modeling — not full auth flow.
 - No JWT middleware yet
 - Auth logic intentionally kept out of model
 
-------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+
+## Day 3 — Authentication: Signup & Login
+
+### Objective
+Enable secure user authentication using email/password and JWT-based access tokens.
+
+### Completed
+- Implemented user signup API with email and password
+- Added password hashing using bcrypt before storing users
+- Implemented user login API with credential verification
+- Integrated JWT-based authentication for login flow
+- Centralized JWT token generation logic in a utility module
+- Configured access token expiration (24 hours)
+- Validated presence of JWT secret at application startup
+- Exposed auth routes under versioned API path (/api/v1/auth)
+- Maintained modular separation between routes, models, utils, and config
+
+### Validation
+- Users can successfully sign up with valid credentials
+- Duplicate email registration is prevented
+- Passwords are securely hashed and never stored in plaintext
+- Invalid login attempts are rejected with appropriate status codes
+- Successful login returns a signed JWT access token
+- JWT tokens expire after the configured duration
+- Application fails to start if JWT secret is missing
+
+### Notes
+- JWT payload kept minimal (userId only)
+- Token generation logic extracted for reuse and maintainability
+- Signup flow currently returns a JWT for immediate authenticated access
+- Auth middleware and protected routes intentionally deferred
+
+---------------------------------------------------------------------------------------
