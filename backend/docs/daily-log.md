@@ -90,3 +90,31 @@ Enable secure user authentication using email/password and JWT-based access toke
 - Auth middleware and protected routes intentionally deferred
 
 ---------------------------------------------------------------------------------------
+
+## Day 4 — Auth Middleware & Protected Routes
+
+### Objective
+Secure application APIs by introducing JWT-based authentication middleware and enforcing protected access to routes.
+
+### Completed
+- Implemented reusable JWT authentication middleware
+- Extracted and validated access token from Authorization header
+- Verified JWT signature and expiration using shared secret
+- Attached decoded user payload to req.user for downstream access
+- Handled missing, invalid, and expired token scenarios gracefully
+- Applied auth middleware to a sample protected route
+- Verified protected route behavior using Postman
+
+### Validation
+- Requests without Authorization header are rejected with 401
+- Requests with invalid or expired tokens are rejected with 401
+- Requests with valid tokens successfully access protected routes
+- Auth middleware blocks request execution before controller on failure
+- Authenticated user context is available in controllers via req.user
+
+### Notes
+- Authentication logic cleanly separated from auth routes
+- Middleware handles authentication only (no role/permission checks yet)
+- Authorization (RBAC) intentionally deferred to a later phase
+- Middleware designed to be reusable across multiple routes
+- Focused on correctness and request lifecycle integration rather than over-engineering
