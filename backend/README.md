@@ -6,3 +6,6 @@
 
 # WorkSphere Day 3 Task
 - Email/password authentication with JWT-based login
+
+# WorkSphere Day 4 Task
+- JWT-based auth middleware with secured API routes
