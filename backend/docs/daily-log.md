@@ -118,3 +118,43 @@ Secure application APIs by introducing JWT-based authentication middleware and e
 - Authorization (RBAC) intentionally deferred to a later phase
 - Middleware designed to be reusable across multiple routes
 - Focused on correctness and request lifecycle integration rather than over-engineering
+
+---------------------------------------------------------------------------------------
+
+## Day 5 — Organization & Multi-User Foundation
+
+### Objective
+Introduce basic organization support to enable a multi-user, multi-tenant system.Ensure every user belongs to an organization with a defined role.
+
+### Completed
+- Designed and implemented Organization data model
+- Added automatic organization creation during user signup
+- Assigned signup user as admin of the newly created organization
+- Updated User schema to include:
+    1. organizationId reference
+    2. role within the organization (admin, member)
+- Implemented basic invite system:
+    1. Admin can invite users by email
+    2. Invitation stored with pending status
+- Implemented invite acceptance flow:
+    1. User created via invite
+    2. User attached to inviter’s organization
+    3. Default role assigned as member
+    4. Invite marked as accepted after use
+- Enforced admin-only access for invite creation
+
+### Validation
+- Organization is automatically created on first user signup
+- Signup user is correctly assigned admin role
+- Users cannot exist without an associated organization
+- Only admins can invite new users to an organization
+- Invited users successfully join the correct organization
+- Duplicate or invalid invites are prevented
+- Cross-organization user attachment is not possible
+
+### Notes
+- Organization–user relationship kept minimal and explicit
+- Invitation flow implemented without email delivery (manual acceptance)
+- RBAC and permission granularity intentionally deferred
+- Schema and logic structured to allow future multi-org and role expansion
+- Focused on correctness, data integrity, and org-level isolation

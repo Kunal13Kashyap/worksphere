@@ -9,3 +9,6 @@
 
 # WorkSphere Day 4 Task
 - JWT-based auth middleware with secured API routes
+
+# WorkSphere Day 5 Task
+- Basic organization support with admin roles and user invite flow
