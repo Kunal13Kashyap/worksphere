@@ -1,0 +1,19 @@
+import mongoose from "mongoose";
+
+const Schema = mongoose.Schema;
+
+const OrgSchema = new Schema({
+    name: String,
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    }
+},{
+    timestamps: true
+}
+)
+
+const OrgModel = mongoose.model("Organization",OrgSchema);
+
+export default OrgModel;

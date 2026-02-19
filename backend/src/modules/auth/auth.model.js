@@ -12,10 +12,15 @@ const UserSchema = new Schema({
             type: String,
             required: true
         },
-        roles: {
-            type: [String],
+        role: {
+            type: String,
             enum: ["user", "admin", "manager"],
-            default: ["user"]
+            default: "user"
+        },
+        belongsTo: {
+            type: Schema.Types.ObjectId,
+            ref: "Organization",
+            required: true
         }
     },
     {
