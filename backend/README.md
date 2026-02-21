@@ -12,3 +12,6 @@
 
 # WorkSphere Day 5 Task
 - Basic organization support with admin roles and user invite flow
+
+# WorkSphere Day 6 Task
+- Role-Based Access Control (RBAC) implementation with admin, manager, and user permissions enforced at route level
