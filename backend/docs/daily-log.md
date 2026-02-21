@@ -158,3 +158,46 @@ Introduce basic organization support to enable a multi-user, multi-tenant system
 - RBAC and permission granularity intentionally deferred
 - Schema and logic structured to allow future multi-org and role expansion
 - Focused on correctness, data integrity, and org-level isolation
+
+---------------------------------------------------------------------------------------
+
+## Day 6 — Role-Based Access Control (RBAC)
+
+### Objective
+Implement a robust authorization layer to strictly control who can perform which actions within the system, based on organizational roles. Ensure clear separation between authentication and authorization.
+
+### Completed
+- Finalized role definitions used across the system:
+    1. `admin`
+    2. `manager`
+    3. `user`
+- Designed and documented a permission matrix covering:
+    1. Organization-level actions
+    2. Project-level actions
+    3. Task-level actions
+- Implemented centralized RBAC middleware:
+    1. Accepts allowed roles as parameters
+    2. Validates authenticated user role against permitted roles
+    3. Blocks unauthorized requests before controller execution
+- Applied RBAC middleware at router level to critical APIs, including:
+    1. Organization invite routes
+    2. Project creation, update, and deletion routes
+    3. Task assignment and deletion routes
+- Enforced deny-by-default authorization strategy
+- Integrated RBAC failures with existing error-handling flow
+
+### Validation
+- `admin` users can perform all permitted actions within the organization
+- `manager` users can manage projects and tasks but cannot perform destructive organization-level actions
+- `user` role is restricted to execution-level actions only
+- Unauthorized role access consistently returns HTTP `403 Forbidden`
+- Authorization checks run before controller logic
+- Controllers contain no role or permission logic
+- Authentication (JWT) and authorization (RBAC) remain fully decoupled
+
+### Notes
+- RBAC implementation is strictly role-based
+- Resource ownership checks (e.g., task assignee validation) are intentionally handled outside RBAC
+- Permission matrix serves as a long-term authorization contract
+- Middleware is reusable and easily extensible for future roles or permissions
+- Clean authorization failures prevent information leakage

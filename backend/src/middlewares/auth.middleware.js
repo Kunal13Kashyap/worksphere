@@ -7,7 +7,7 @@ export const auth = (req,res,next)=>{
     if(!authHeader){
         return res.status(401).json({
             message: "Access token missing"
-        })
+        });
     }
 
     const token = authHeader.split(" ")[1];
@@ -21,6 +21,6 @@ export const auth = (req,res,next)=>{
     }catch(error){
         return res.status(401).json({
             message: "Unauthorized"
-        })
+        });
     }
 }
