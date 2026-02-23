@@ -3,12 +3,13 @@ import orgModel from "../organization/organization.model.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../../utils/token.js";
 import inviteModel from "../organization/invite.model.js";
+import AppError from "../../utils/appError.js";
 
 export const signupService = async(email,password)=>{
     const existingUser = await userModel.findOne({ email });
 
     if(existingUser){
-        throw new Error("User already exists, go to Login");
+        throw new AppError("User already exists, go to Login",409);
     };
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -40,15 +41,15 @@ export const signupWithInvite = async(email,password,inviteId)=>{
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = await userModel.findOne({ email: normalizedEmail });
-    if (existingUser) throw new Error("User already exists");
+    if (existingUser) throw new AppError("User already exists",409);
 
     const isInvited = await inviteModel.findById(inviteId);
 
-    if(!isInvited) throw new Error("Invalid invite");
+    if(!isInvited) throw new AppError("Invalid invite",400);
 
-    if(isInvited.status !== "pending") throw new Error("Invite already used");
+    if(isInvited.status !== "pending") throw new AppError("Invite already used",400);
 
-    if(isInvited.email !== normalizedEmail) throw new Error("Email mismatch");
+    if(isInvited.email !== normalizedEmail) throw new AppError("Email mismatch",400);
 
     const hashedPassword = await bcrypt.hash(password,10);
 

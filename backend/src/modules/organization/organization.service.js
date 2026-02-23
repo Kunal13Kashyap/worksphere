@@ -1,5 +1,6 @@
 import UserModel from "../auth/auth.model.js";
 import InviteModel from "./invite.model.js";
+import AppError from "../../utils/appError.js";
 
 export const inviteService = async(userEmail,orgId)=>{
     const normalizedEmail = userEmail.trim().toLowerCase();
@@ -10,7 +11,7 @@ export const inviteService = async(userEmail,orgId)=>{
     });
 
     if(findUser){
-        throw new Error("User already exists");
+        throw new AppError("User already exists",409);
     }
 
     const invitePending = await InviteModel.findOne({
@@ -20,7 +21,7 @@ export const inviteService = async(userEmail,orgId)=>{
     });
 
     if(invitePending){
-        throw new Error("Invitation of this user is in pending state");
+        throw new AppError("Invitation of this user is in pending state",409);
     }
 
     const newInvite = new InviteModel({

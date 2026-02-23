@@ -1,13 +1,12 @@
 import { JWT_SECRET } from "../config/env.js";
 import jwt from "jsonwebtoken";
+import AppError from "../utils/appError.js";
 
 export const auth = (req,res,next)=>{
     const authHeader = req.headers.authorization;
 
     if(!authHeader){
-        return res.status(401).json({
-            message: "Access token missing"
-        });
+        throw new AppError("Access token missing",401);
     }
 
     const token = authHeader.split(" ")[1];
@@ -19,8 +18,6 @@ export const auth = (req,res,next)=>{
         next();
 
     }catch(error){
-        return res.status(401).json({
-            message: "Unauthorized"
-        });
+        next(new AppError("Invalid or expired token",401));
     }
 }
