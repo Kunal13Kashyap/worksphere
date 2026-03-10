@@ -38,23 +38,21 @@ export const signupService = async(email,password)=>{
 }
 
 export const signupWithInvite = async(email,password,inviteId)=>{
-    const normalizedEmail = email.trim().toLowerCase();
 
-    const existingUser = await userModel.findOne({ email: normalizedEmail });
+    const existingUser = await userModel.findOne({ email });
     if (existingUser) throw new AppError("User already exists",409);
 
     const isInvited = await inviteModel.findById(inviteId);
-
     if(!isInvited) throw new AppError("Invalid invite",400);
 
     if(isInvited.status !== "pending") throw new AppError("Invite already used",400);
 
-    if(isInvited.email !== normalizedEmail) throw new AppError("Email mismatch",400);
+    if(isInvited.email !== email) throw new AppError("Email mismatch",400);
 
     const hashedPassword = await bcrypt.hash(password,10);
 
     const invitedUser = new userModel({
-        email: normalizedEmail,
+        email: email,
         password: hashedPassword,
         role: isInvited.role,
         belongsTo: isInvited.orgId

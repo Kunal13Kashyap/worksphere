@@ -201,3 +201,39 @@ Implement a robust authorization layer to strictly control who can perform which
 - Permission matrix serves as a long-term authorization contract
 - Middleware is reusable and easily extensible for future roles or permissions
 - Clean authorization failures prevent information leakage
+
+---------------------------------------------------------------------------------------
+
+## Day 7 — Error Handling & Input Validation
+
+### Objective
+Introduce centralized error handling and structured request validation to ensure consistent API behavior, predictable failure responses, and improved system reliability.
+
+### Completed
+- Implemented centralized global error handling middleware
+- Created a reusable custom error class (AppError) for controlled application errors
+- Integrated centralized error handling into the Express request lifecycle
+- Implemented request validation using Zod
+- Built reusable validation middleware for validating request bodies
+- Separated validation schemas from business logic modules
+- Standardized API error response structure across the application
+- Ensured validation failures propagate through the centralized error handler
+- Removed ad-hoc error responses from controllers in favor of consistent handling
+
+### Validation
+- Invalid request payloads are rejected before reaching controllers
+- Validation errors return structured responses with clear messages
+- Application errors thrown via AppError return correct HTTP status codes
+- Unexpected runtime errors are safely caught by the global error handler
+- No unhandled promise rejections or server crashes occur due to request errors
+- Controllers remain focused on business logic without embedded error formatting
+
+### Notes
+- Validation schemas are defined separately from validation logic to maintain modular architecture
+- Controllers and services throw errors rather than manually formatting responses
+- Global error handler acts as the single response formatter for failures
+- Zod ensures strict schema enforcement for request payloads
+- This setup prepares the system for scalable API development and consistent error reporting
+
+---------------------------------------------------------------------------------------
+

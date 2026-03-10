@@ -15,3 +15,6 @@
 
 # WorkSphere Day 6 Task
 - Role-Based Access Control (RBAC) implementation with admin, manager, and user permissions enforced at route level
+
+# WorkSphere Day 7 Task
+- Centralized error handling and request validation using custom AppError and Zod schemas

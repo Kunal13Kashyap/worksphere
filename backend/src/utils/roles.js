@@ -1,13 +1,13 @@
 const ROLES = {
     ADMIN: "admin",
     MANAGER: "manager",
-    USER: "user"
+    MEMBER: "member"
 };
 
 const ALL_ROLES = [
     ROLES.ADMIN,
     ROLES.MANAGER,
-    ROLES.USER
+    ROLES.MEMBER
 ];
 
 const PRIVILEGED_ROLES = [
