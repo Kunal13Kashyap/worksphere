@@ -237,3 +237,39 @@ Introduce centralized error handling and structured request validation to ensure
 
 ---------------------------------------------------------------------------------------
 
+## Day 8 - Project Module (CRUD + Org Isolation)
+
+### Objective
+Implement a secure and scalable Project module within organizations, ensuring strict access control, data isolation, and production-ready API behavior
+
+### Completed
+- Implemented Project CRUD APIs (Create, Read, Update, Delete)
+- Enforced organization-level data isolation using `orgId`
+- Integrated RBAC for project actions (admin, manager, user)
+- Added input validation and defensive checks (including ObjectId validation)
+- Implemented pagination with query parameters (`page`, `limit`)
+- Sorted project listing by `createdAt` in descending order
+- Implemented soft delete using `isDeleted` flag and `deletedAt` timestamp
+- Excluded deleted projects from all read operations
+- Added scheduled cleanup using cron job to permanently remove old deleted projects
+- Created compound indexes for optimized query performance
+- Enforced unique project names within an organization (partial index)
+
+### Validation
+- Only authorized roles can create, update, or delete projects
+- Users can access only projects belonging to their organization
+- Invalid or malformed IDs are rejected with proper error responses
+- Pagination returns correct subset of projects with metadata
+- Deleted projects are not accessible via APIs
+- Cron job successfully removes projects deleted beyond retention window
+- No cross-organization data access is possible
+- API responses remain consistent via centralized error handling
+
+### Notes
+- Maintained strict separation of concerns (controller → service → model)
+- Avoided overengineering while ensuring production-grade fundamentals
+- Indexing strategy aligned with query patterns for scalability
+- Soft delete strategy ensures recoverability while supporting cleanup
+- Module designed to integrate seamlessly with upcoming Task system
+
+---------------------------------------------------------------------------------------

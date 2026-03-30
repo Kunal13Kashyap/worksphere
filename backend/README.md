@@ -18,3 +18,6 @@
 
 # WorkSphere Day 7 Task
 - Centralized error handling and request validation using custom AppError and Zod schemas
+
+# WorkSphere Day 8 Task
+- Org-scoped Project CRUD APIs with RBAC, pagination, soft delete, indexing, & scheduled cleanup
