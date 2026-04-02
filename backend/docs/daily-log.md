@@ -237,7 +237,7 @@ Introduce centralized error handling and structured request validation to ensure
 
 ---------------------------------------------------------------------------------------
 
-## Day 8 - Project Module (CRUD + Org Isolation)
+## Day 8 — Project Module (CRUD + Org Isolation)
 
 ### Objective
 Implement a secure and scalable Project module within organizations, ensuring strict access control, data isolation, and production-ready API behavior
@@ -273,3 +273,47 @@ Implement a secure and scalable Project module within organizations, ensuring st
 - Module designed to integrate seamlessly with upcoming Task system
 
 ---------------------------------------------------------------------------------------
+
+## Day 9 — Task Module (CRUD + Assignment + Org  Isolation)
+
+### Objective
+Implement a robust Task module within projects, enabling task creation, assignment, updates, and deletion while ensuring strict organization-level isolation and role-based access control
+
+### Completed
+- Designed and implemented Task data model with fields:
+    * `title`, `description`, `status`, `assignedTo`, `projectId`, `orgId`, `createdBy`
+- Implemented Task CRUD APIs (Create, Read, Update, Delete)
+- Enforced project-level association:
+    * Tasks must belong to a valid project
+- Enforced organization-level isolation using orgId
+- Implemented task assignment logic:
+    * Tasks can only be assigned to users within the same organization
+- Integrated RBAC for task operations:
+    * Restricted creation, updates, and deletion based on roles
+- Added input validation using Zod for task payloads
+- Implemented defensive checks:
+    * Invalid ObjectId handling
+    * Non-existent project/user validation
+- Ensured soft delete for tasks using `isArchived` flag
+- Excluded archived tasks from read operations
+- Maintained consistent service-controller separation
+
+### Validation
+- Tasks can only be created within valid projects belonging to the user’s organization
+- Users cannot access or manipulate tasks outside their organization
+- Task assignment is restricted to users within the same organization
+- Invalid projectId or assignedTo user is rejected with proper error response
+- Unauthorized roles are blocked via RBAC middleware (403 Forbidden)
+- Archived tasks are not returned in fetch APIs
+- All APIs return consistent structured responses via centralized error handling
+- Controllers remain thin; business logic resides in service layer
+
+### Notes
+- Focused on clean data relationships between Task → Project → Organization
+- Status logic intentionally kept basic (to be expanded in Day 10)
+- Assignment validation handled at service layer, not RBAC
+- Soft delete ensures recoverability and audit readiness
+- Module designed for scalability with future filtering and pagination support
+
+---------------------------------------------------------------------------------------
+
