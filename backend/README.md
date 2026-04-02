@@ -21,3 +21,6 @@
 
 # WorkSphere Day 8 Task
 - Org-scoped Project CRUD APIs with RBAC, pagination, soft delete, indexing, & scheduled cleanup
+
+# WorkSphere Day 9 Task
+- Org + project scoped Task CRUD APIs with assignment logic, RBAC enforcement, validation, and soft delete
