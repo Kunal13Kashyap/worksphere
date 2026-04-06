@@ -13,7 +13,7 @@
 
 | Action | Admin | Manager | Member |
 | --- | --- | --- | --- |
-| Create Task | ✅ | ✅ | ✅ |
+| Create Task | ✅ | ✅ | ❌ |
 | Read Task | ✅ | ✅ | ✅ |
 | Update Task Meta | ✅ | ✅ | ❌ |
 | Update Task Status | ✅ | ✅ | ✅ (own) |

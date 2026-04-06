@@ -1,24 +1,22 @@
-import projectModel from "./project.model.js";
+import ProjectModel from "./project.model.js";
 import AppError from "../../utils/appError.js";
 
 export const projectPostService = async ({name, description, user}) => {
     const userId = user.userId;
-    const orgId = user.belongsTo;
+    const orgId = user.orgId;
 
     if (!orgId) {
         throw new AppError("User is not part of any organization", 400);
     }
 
     try {
-        const newProject = new projectModel({
+        const newProject = await ProjectModel.create({
             name: name.trim(),
             description: description?.trim() || "",
             orgId,
             ownerId: userId,
             createdBy: userId
         });
-
-        await newProject.save();
 
         return newProject;
 
@@ -40,13 +38,13 @@ export const projectGetService = async({orgId, page, limit}) => {
         const skip = (page-1) * limit;
 
         const [projects, total] = await Promise.all([
-        projectModel
+        ProjectModel
             .find({ orgId, isDeleted: false })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit),
 
-            projectModel.countDocuments({ orgId, isDeleted: false })
+            ProjectModel.countDocuments({ orgId, isDeleted: false })
         ]);
 
         return {
@@ -68,7 +66,7 @@ export const projectByidGetService = async({projectId, orgId}) => {
         throw new AppError("Invalid Id",400);
     }
 
-    const getProject = await projectModel.findOne({_id: projectId, orgId, isDeleted: false});
+    const getProject = await ProjectModel.findOne({_id: projectId, orgId, isDeleted: false});
     if(!getProject){
         throw new AppError("Not found",404);
     }
@@ -87,7 +85,7 @@ export const projectChangeService = async({projectId, orgId, detailObject}) => {
         throw new AppError("No fields to update",400);
     }
 
-    const updateProject = await projectModel.findOneAndUpdate({_id: projectId,orgId,isDeleted: false},{$set: detailObject},{new: true, runValidators: true});
+    const updateProject = await ProjectModel.findOneAndUpdate({_id: projectId,orgId,isDeleted: false},{$set: detailObject},{new: true, runValidators: true});
     if(!updateProject) {
         throw new AppError("Project not found",404);
     }
@@ -102,7 +100,7 @@ export const projectDeleteService = async({projectId,orgId}) => {
     if(!projectId) {
         throw new AppError("Invalid Id",400);
     }
-    const deletedProject = await projectModel.findOneAndUpdate({_id: projectId, orgId, isDeleted: false},{$set: {isDeleted: true, deletedAt: new Date()}},{new: true, runValidators: true});
+    const deletedProject = await ProjectModel.findOneAndUpdate({_id: projectId, orgId, isDeleted: false},{$set: {isDeleted: true, deletedAt: new Date()}},{new: true, runValidators: true});
 
     if(!deletedProject) throw new AppError("Project not found",404);
 
@@ -113,7 +111,7 @@ export const deleteOldProjectsService = async() => {
 
     const THIRTY_DAYS_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    await projectModel.deleteMany({
+    await ProjectModel.deleteMany({
     isDeleted: true,
     deletedAt: { $exists: true, $lt: THIRTY_DAYS_AGO }
     });

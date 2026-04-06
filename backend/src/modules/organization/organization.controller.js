@@ -10,7 +10,7 @@ export const inviteController = async(req,res,next)=>{
         };
 
         const userEmail = req.body.email;
-        const orgId = req.user.belongsTo;
+        const orgId = req.user.orgId;
     
         const inviteId = await inviteService(userEmail,orgId);
         return res.status(200).json({

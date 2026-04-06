@@ -3,6 +3,7 @@ import healthRouter from "./routes/health.js"
 import authRouter from "./modules/auth/auth.routes.js"
 import orgRouter from "./modules/organization/organization.routes.js"
 import projectRouter from "./modules/project/project.routes.js"
+import taskRouter from "./modules/task/task.routes.js"
 import { errorHandler } from "./middlewares/error.middleware.js"
 import cors from "cors"
 
@@ -15,6 +16,7 @@ app.use("/health",healthRouter);
 app.use("/api/v1/auth",authRouter);
 app.use("/api/v1/org",orgRouter);
 app.use("/api/v1/projects",projectRouter);
+app.use("/api/v1/tasks",taskRouter);
 app.use(errorHandler);
 
 export default app;

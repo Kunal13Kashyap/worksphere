@@ -23,7 +23,7 @@ export const projectPostController = async(req,res,next) => {
 export const projectGetController = async(req,res,next) => {
 
     try{
-        const orgId = req.user.belongsTo;
+        const orgId = req.user.orgId;
 
         let { page = 1, limit = 10 } = req.query;
 
@@ -50,7 +50,7 @@ export const projectGetController = async(req,res,next) => {
 export const projectByidGetController = async(req,res,next) => {
     try{
         const projectId = req.params.projectId;
-        const orgId = req.user.belongsTo;
+        const orgId = req.user.orgId;
         if (!mongoose.Types.ObjectId.isValid(projectId)) {
             throw new AppError("Invalid project ID", 400);
         }
@@ -70,7 +70,7 @@ export const projectChangeController = async(req, res, next) => {
     try {
         const { name, description } = req.body;
         const projectId = req.params.projectId;
-        const orgId = req.user.belongsTo;
+        const orgId = req.user.orgId;
 
         if (!mongoose.Types.ObjectId.isValid(projectId)) {
             throw new AppError("Invalid project ID", 400);
@@ -114,7 +114,7 @@ export const projectChangeController = async(req, res, next) => {
 export const projectDeleteController = async(req,res,next) => {
     try{
         const projectId = req.params.projectId;
-        const orgId = req.user.belongsTo;
+        const orgId = req.user.orgId;
 
         if (!mongoose.Types.ObjectId.isValid(projectId)) {
             throw new AppError("Invalid project ID", 400);

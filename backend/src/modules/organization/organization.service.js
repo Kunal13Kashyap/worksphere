@@ -24,12 +24,10 @@ export const inviteService = async(userEmail,orgId)=>{
         throw new AppError("Invitation of this user is in pending state",409);
     }
 
-    const newInvite = new InviteModel({
+    const newInvite = await InviteModel.create({
         email: normalizedEmail,
         orgId: orgId,
     });
-
-    await newInvite.save();
 
     return newInvite._id;
 
