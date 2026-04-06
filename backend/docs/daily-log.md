@@ -317,3 +317,58 @@ Implement a robust Task module within projects, enabling task creation, assignme
 
 ---------------------------------------------------------------------------------------
 
+## Day 10  Task Workflow (Status Logic + RBAC Constraints)
+
+### Objective
+Enhance the Task module by introducing business-level workflow rules, ensuring controlled task lifecycle transitions and enforcing role-based constraints beyond basic CRUD operations
+
+### Completed
+- Defined task status system using controlled enum:
+    * `todo`, `in_progress`, `done`
+- Implemented status transition rules:
+    * `todo → in_progress`
+    * `in_progress → done`
+    * Prevented invalid transitions (e.g., `todo → done`)
+- Enforced immutability of completed tasks:
+    * Tasks marked as `done` cannot be modified or updated
+- Separated status updates into a dedicated endpoint:
+    * `/tasks/:taskId/status`
+- Ensured single source of truth for status logic within service layer
+- Integrated RBAC constraints for status updates:
+    * `admin` and `manager` can update any task
+    * `member` can update only tasks assigned to them
+- Added defensive checks:
+    * Prevent same status updates
+    * Validate status values against allowed enum
+    * Ensure task exists within organization scope
+- Introduced workflow metadata tracking:
+    * `startedAt` set when task moves to `in_progress`
+    * `completedAt` set when task moves to `done`
+- Updated general task update API:
+    * Restricted to only `title` and `description` updates
+    * Prevented status modification through generic update route
+- Enforced data integrity across all update paths
+- Maintained clean separation:
+    * Controller → validation
+    * Service → business logic
+
+### Validation
+- Invalid status transitions are rejected with proper error responses
+- Tasks cannot be updated once marked as `done`
+- Members cannot update tasks not assigned to them
+- Admins and managers can update status of any task within organization
+- Status updates only occur through dedicated endpoint (no bypass)
+- Workflow timestamps (`startedAt`, `completedAt`) are correctly set
+- All operations respect organization-level isolation (`orgId`)
+- Error handling remains consistent via centralized middleware
+
+### Notes
+- Introduced workflow-driven backend design (beyond CRUD)
+- Ensured domain invariants are enforced at service layer
+- Avoided duplication by centralizing status logic
+- RBAC handles access, while service layer enforces business rules
+- Design aligns with real-world systems like Jira/Asana
+- This step significantly improves system robustness and interview readiness
+
+---------------------------------------------------------------------------------------
+

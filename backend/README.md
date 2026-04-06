@@ -24,3 +24,6 @@
 
 # WorkSphere Day 9 Task
 - Org + project scoped Task CRUD APIs with assignment logic, RBAC enforcement, validation, and soft delete
+
+# WorkSphere Day 10 Task
+- Task workflow implementation with status transitions, RBAC-based status control, and strict lifecycle rules enforcement

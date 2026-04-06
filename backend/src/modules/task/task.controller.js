@@ -1,12 +1,11 @@
 import { taskCreateService, taskGetService, taskUpdateService, taskStatusUpdateService, taskDeleteService } from "./task.service.js";
 import AppError from "../../utils/appError.js";
-import { TASK_STATUS } from "../../utils/constants.js";
 
 export const taskCreateController = async(req,res,next) => {
     try{
         const { projectId, assignedTo, title, description } = req.body;
 
-        if (!projectId) {
+        if (!projectId || typeof projectId !== "string") {
             throw new AppError("Project ID is required", 400);
         }
 
@@ -54,12 +53,12 @@ export const taskGetController = async(req,res,next) => {
 
 export const taskUpdateController = async(req,res,next) => {
     try{
-        const {title, description, status} = req.body;
+        const {title, description} = req.body;
         const {taskId} = req.params;
 
         const isValidString = (value) => typeof value === "string" && value.trim() !== "";
 
-        if (title === undefined && description === undefined && status === undefined) {
+        if (title === undefined && description === undefined) {
             throw new AppError("At least one field is required", 400);
         }
 
@@ -71,14 +70,9 @@ export const taskUpdateController = async(req,res,next) => {
             throw new AppError("Description can't be empty",400);
         }
 
-        if (status !== undefined && !TASK_STATUS.includes(status)) {
-            throw new AppError("Invalid status value", 400);
-        }
-
         const detailObject = {};
         if (title !== undefined) detailObject.title = title.trim();
         if (description !== undefined) detailObject.description = description.trim();
-        if (status !== undefined) detailObject.status = status;
 
         const taskUpdate = await taskUpdateService({
             taskId,

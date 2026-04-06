@@ -3,6 +3,7 @@ import TaskModel from "../task/task.model.js";
 import ProjectModel from "../project/project.model.js";
 import UserModel from "../auth/auth.model.js";
 import { TASK_STATUS } from "../../utils/constants.js";
+import { STATUS_TRANSITIONS } from "../../utils/transition.js";
 
 export const taskCreateService = async({projectId,assignedTo,title,description,user}) => {
     const userId = user.userId;
@@ -52,10 +53,20 @@ export const taskGetService = async ({ projectId, user, status, assignedTo }) =>
         isArchived: false
     };
 
-    if (status) query.status = status;
-    if (assignedTo) query.assignedTo = assignedTo;
+    if (status) {
+        if (!TASK_STATUS.includes(status)) {
+            throw new AppError("Invalid status filter", 400);
+        }
+        query.status = status;
+    }
 
-    const tasks = await TaskModel.find(query).lean();
+    if (user.role === "member") {
+        query.assignedTo = user.userId;
+    } else{
+        if (assignedTo) query.assignedTo = assignedTo;
+    }
+
+    const tasks = await TaskModel.find(query).sort({createdAt: -1}).lean();
 
     return tasks;
 };
@@ -71,8 +82,15 @@ export const taskUpdateService = async ({ taskId, user, detailObject }) => {
         throw new AppError("No fields to update",400);
     }
     
-    const task = await TaskModel.findOneAndUpdate({_id: taskId, orgId, isArchived: false},{$set: detailObject},{new: true, runValidators: true});
+    const task = await TaskModel.findOne({_id: taskId, orgId, isArchived: false});
+
     if(!task) throw new AppError("Task not found",404);
+
+    if(task.status === "done") throw new AppError("Completed task can't be modified",400);
+
+    Object.assign(task, detailObject);
+    await task.save();
+
     return task;
     
 };
@@ -93,14 +111,35 @@ export const taskStatusUpdateService = async ({ taskId, status, user }) => {
 
     if (!task) throw new AppError("Task not found", 404);
 
-    const isOwner = task.assignedTo?.toString() === user.userId?.toString();
-    const isMember = user.role === "member";
+    const currentStatus = task.status;
 
-    if (isMember && !isOwner) {
-        throw new AppError("Not allowed to update status", 403);
+    if(currentStatus === status) throw new AppError("Task already in this status",400);
+
+    if(currentStatus === "done") throw new AppError("Completed task can't be modified",400);
+
+    if (!STATUS_TRANSITIONS[currentStatus]) {
+        throw new AppError("Invalid current task state", 500);
+    }
+
+    const allowedNext = STATUS_TRANSITIONS[currentStatus] || [];
+
+    if(!allowedNext.includes(status)) throw new AppError(`Invalid transition from ${currentStatus} to ${status}`,400);
+
+    if(user.role === "member"){
+
+        const isOwner = task.assignedTo?.toString() === user.userId?.toString();
+
+        if (!isOwner) {
+            throw new AppError("Not allowed to update status", 403);
+        }
     }
     
     task.status = status;
+
+    if(status === "in_progress" && !task.startedAt) task.startedAt = new Date();
+
+    if(status === "done") task.completedAt = new Date();
+
     await task.save();
 
     return task;
@@ -114,11 +153,18 @@ export const taskDeleteService = async ({ taskId, user}) => {
         throw new AppError("User not part of any organization", 400);
     }
 
-    const deleteTask = await TaskModel.findOneAndUpdate({_id: taskId, orgId, isArchived: false},{$set: {isArchived: true}},{new: true});
+    const deleteTask = await TaskModel.findOne({_id: taskId, orgId, isArchived: false});
 
     if (!deleteTask) {
         throw new AppError("Task not found", 404);
     }
+
+    if (deleteTask.isArchived) {
+        throw new AppError("Task already deleted", 400);
+    }
+
+    deleteTask.isArchived = true;
+    await deleteTask.save();
 
     return deleteTask;
 };
