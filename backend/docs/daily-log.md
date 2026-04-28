@@ -317,7 +317,7 @@ Implement a robust Task module within projects, enabling task creation, assignme
 
 ---------------------------------------------------------------------------------------
 
-## Day 10  Task Workflow (Status Logic + RBAC Constraints)
+## Day 10 — Task Workflow (Status Logic + RBAC Constraints)
 
 ### Objective
 Enhance the Task module by introducing business-level workflow rules, ensuring controlled task lifecycle transitions and enforcing role-based constraints beyond basic CRUD operations
@@ -369,6 +369,69 @@ Enhance the Task module by introducing business-level workflow rules, ensuring c
 - RBAC handles access, while service layer enforces business rules
 - Design aligns with real-world systems like Jira/Asana
 - This step significantly improves system robustness and interview readiness
+
+---------------------------------------------------------------------------------------
+
+## Day 11 — Pagination & Filtering (Scalability Layer)
+
+### Objective
+Enhance existing Project and Task APIs to support scalable data retrieval using pagination and dynamic filtering. Ensure efficient querying, predictable performance, and clean API response design
+
+### Completed
+- Implemented pagination for Project and Task listing APIs
+    * Supported query parameters: `page`, `limit`
+    * Applied default values (`page = 1`, `limit = 10`)
+    * Enforced upper limit cap (`limit ≤ 50`) to prevent abuse
+- Integrated pagination logic at database level using:
+    * `skip` and `limit` for controlled data retrieval
+    * Parallel execution of data + count queries using `Promise.all`
+- Standardized API response structure across modules:
+    * Introduced consistent `data` and `pagination` format
+    * Included `total`, `page`, `limit`, and `totalPages`
+- Implemented filtering for Project APIs:
+    * Supported filters: `status`, `ownerId`
+    * Added search capability using regex on `name` and `description`
+    * Introduced reusable filter builder utility for controlled query construction
+- Implemented filtering for Task APIs:
+    * Supported filters: `status`, `assignedTo`
+    * Enforced role-based filtering:
+        * `member` → only assigned tasks
+        * `admin/manager` → optional assignment filtering
+    * Added search support on `title` field
+- Maintained strict organization-level data isolation:
+    * All queries scoped with `orgId`
+    * Verified project ownership before fetching tasks
+- Improved query efficiency:
+    * Used `.select()` to limit returned fields
+    * Used `.lean()` for faster query execution
+    * Avoided in-memory filtering; delegated all filtering to database
+- Added defensive checks:
+    * Pagination input validation (`NaN`, negative values)
+    * ObjectId validation for `assignedTo`
+    * Enum validation for `status`
+- Maintained clean architecture:
+    * Controller → request parsing & validation
+    * Service → business logic & DB queries
+    * Utils → reusable filtering logic (where applicable)
+
+### Validation
+- Pagination returns correct subsets of data based on page and limit
+- Total count and totalPages are accurately calculated
+- Filtering works independently and in combination (e.g., status + search)
+- Role-based restrictions correctly limit task visibility for members
+- Users cannot access data outside their organization
+- Invalid query parameters are safely handled with defaults
+- APIs return consistent response structure across Project and Task modules
+- Query performance remains stable under larger datasets
+
+### Notes
+- Pagination ensures predictable response size and prevents large payloads
+- Filtering is executed at database level for optimal performance
+- Search implemented using regex (suitable for current scale; can be upgraded to text index later)
+- Introduced controlled abstraction (buildFilter) without over-engineering
+- Task API retains business-specific logic (RBAC, assignment) within service layer
+- Designed APIs to align with real-world systems (Jira, Notion, Trello)
+- This step transitions the backend from CRUD-based design to scalable API design
 
 ---------------------------------------------------------------------------------------
 

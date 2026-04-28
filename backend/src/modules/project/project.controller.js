@@ -35,11 +35,17 @@ export const projectGetController = async(req,res,next) => {
 
         limit = Math.min(limit, 50);
 
-        const projects = await projectGetService({orgId, page, limit});
+        const projects = await projectGetService({
+            orgId, 
+            page, 
+            limit, 
+            query: req.query
+        });
 
         res.status(200).json({
             message: "Projects fetched successfully",
-            ...projects
+            data: projects.data,
+            pagination: projects.pagination
         });
 
     }catch(error){

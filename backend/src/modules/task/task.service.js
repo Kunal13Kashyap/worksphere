@@ -4,6 +4,7 @@ import ProjectModel from "../project/project.model.js";
 import UserModel from "../auth/auth.model.js";
 import { TASK_STATUS } from "../../utils/constants.js";
 import { STATUS_TRANSITIONS } from "../../utils/transition.js";
+import { buildFilter } from '../../utils/queryBuilder.js'
 
 export const taskCreateService = async({projectId,assignedTo,title,description,user}) => {
     const userId = user.userId;
@@ -35,7 +36,7 @@ export const taskCreateService = async({projectId,assignedTo,title,description,u
     return newTask;
 };
 
-export const taskGetService = async ({ projectId, user, status, assignedTo }) => {
+export const taskGetService = async ({ projectId, user, status, assignedTo, page, limit, query }) => {
     const orgId = user.orgId;
 
     if (!orgId) {
@@ -47,28 +48,47 @@ export const taskGetService = async ({ projectId, user, status, assignedTo }) =>
         throw new AppError("Project not found", 404);
     }
 
-    const query = {
+    const skip = (page - 1) * limit;
+
+    const baseFilter = {
         projectId,
         orgId,
         isArchived: false
     };
 
-    if (status) {
-        if (!TASK_STATUS.includes(status)) {
-            throw new AppError("Invalid status filter", 400);
-        }
-        query.status = status;
+    const filter = buildFilter(baseFilter, query, ["status"], ["title"]);
+
+    if (status && !TASK_STATUS.includes(status)) {
+        throw new AppError("Invalid status filter", 400);
     }
 
     if (user.role === "member") {
-        query.assignedTo = user.userId;
-    } else{
-        if (assignedTo) query.assignedTo = assignedTo;
+        filter.assignedTo = user.userId;
+    } else if (assignedTo && mongoose.Types.ObjectId.isValid(assignedTo)) {
+        filter.assignedTo = assignedTo;
     }
 
-    const tasks = await TaskModel.find(query).sort({createdAt: -1}).lean();
+    const [tasks, total] = await Promise.all([
+        TaskModel
+        .find(filter)
+        .select("title status assignedTo createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
 
-    return tasks;
+        TaskModel.countDocuments(filter)
+    ])
+
+    return {
+        data: tasks,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total/limit)
+        }
+    };
 };
 
 export const taskUpdateService = async ({ taskId, user, detailObject }) => {

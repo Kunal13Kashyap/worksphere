@@ -27,3 +27,6 @@
 
 # WorkSphere Day 10 Task
 - Task workflow implementation with status transitions, RBAC-based status control, and strict lifecycle rules enforcement
+
+# WorkSphere Day 11 Task
+- Added pagination and filtering to Project & Task APIs with search support and optimized queries for scalable and efficient data retrieval

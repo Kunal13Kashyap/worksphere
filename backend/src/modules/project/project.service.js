@@ -1,5 +1,6 @@
 import ProjectModel from "./project.model.js";
 import AppError from "../../utils/appError.js";
+import { buildFilter } from "../../utils/queryBuilder.js";
 
 export const projectPostService = async ({name, description, user}) => {
     const userId = user.userId;
@@ -28,34 +29,42 @@ export const projectPostService = async ({name, description, user}) => {
     }
 };
 
-export const projectGetService = async({orgId, page, limit}) => {
+export const projectGetService = async({orgId, page, limit, query}) => {
 
     if (!orgId) {
         throw new AppError("User is not part of any organization", 400);
     }
 
-    try{
-        const skip = (page-1) * limit;
+    const skip = (page-1) * limit;
 
-        const [projects, total] = await Promise.all([
-        ProjectModel
-            .find({ orgId, isDeleted: false })
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit),
+    const baseFilter = {
+        orgId,
+        isDeleted: false
+    }
 
-            ProjectModel.countDocuments({ orgId, isDeleted: false })
-        ]);
+    const filter = buildFilter(baseFilter, query, ["status", "ownerId"]);
 
-        return {
+    const [projects, total] = await Promise.all([
+    ProjectModel
+        .find(filter)
+        .select("name description status createdAt ownerId")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+        ProjectModel.countDocuments(filter)
+    ]);
+
+    return {
+        data: projects,
+        pagination: {
             total,
             page,
             limit,
-            data: projects
-        };
-    } catch(error){
-        throw error;
-    }
+            totalPages: Math.ceil(total/limit)
+        }            
+    };
 };
 
 export const projectByidGetService = async({projectId, orgId}) => {

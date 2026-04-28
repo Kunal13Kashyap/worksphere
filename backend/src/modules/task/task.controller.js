@@ -33,18 +33,34 @@ export const taskCreateController = async(req,res,next) => {
 
 export const taskGetController = async(req,res,next) => {
     try{
-        const {projectId, status, assignedTo} = req.query;
+        const {projectId, status, assignedTo, page = 1, limit = 10} = req.query;
 
         if (!projectId) {
             throw new AppError("Project ID is required", 400);
         }
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        if(isNaN(page) || page < 1) page = 1;
+        if(isNaN(limit) || limit < 1) limit = 10;
+
+        limit = Math.min(limit, 50);
         
-        const getTasks = await taskGetService({projectId, user: req.user, status, assignedTo});
+        const getTasks = await taskGetService({
+            projectId, 
+            user: req.user, 
+            status, 
+            assignedTo,
+            page,
+            limit,
+            query: req.query
+        });
 
         res.status(200).json({
-            success: true,
             message: "Tasks fetched successfully",
-            data: getTasks
+            data: getTasks.data,
+            pagination: getTasks.pagination
         });
     } catch(error){
         next(error);
