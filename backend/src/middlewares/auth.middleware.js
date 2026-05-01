@@ -2,6 +2,7 @@ import { JWT_SECRET } from "../config/env.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import UserModel from "../modules/auth/auth.model.js";
+import TokenModel from "../modules/auth/token.model.js"
 
 export const auth = async(req,res,next) => {
     const authHeader = req.headers.authorization;
@@ -16,9 +17,13 @@ export const auth = async(req,res,next) => {
 
     const token = authHeader.split(" ")[1];
 
-    try{
+    req.token = token;
 
+    try{
         const decodedData = jwt.verify(token,JWT_SECRET);
+        const isBlacklisted = await TokenModel.exists({token});
+        if(isBlacklisted) throw new AppError("Invalid or expired token",401);
+        req.decoded = decodedData;
         const user = await UserModel.findById(decodedData.userId).select("_id role belongsTo");
          if (!user) {
             return next(new AppError("User not found", 404));

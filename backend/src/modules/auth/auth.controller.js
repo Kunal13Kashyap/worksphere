@@ -1,8 +1,11 @@
 import { signupWithInvite, signupService } from "./auth.service.js";
 import userModel from "./auth.model.js";
+import TokenModel from "./token.model.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../../utils/token.js";
 import AppError from "../../utils/appError.js";
+import { JWT_SECRET } from "../../config/env.js";
+import jwt from "jsonwebtoken";
 
 export const signupWithInviteController = async(req,res,next)=>{
     const { email, password, inviteId } = req.body;
@@ -59,4 +62,17 @@ export const loginController = async (req,res,next)=>{
     }catch(err){
         next(err);
     }
+}
+
+export const logoutController = async (req,res,next)=>{
+    const decodedToken = req.decoded;
+    await TokenModel.updateOne(
+        { token: req.token },
+        { $setOnInsert: { token: req.token, expiresAt: new Date(req.decoded.exp * 1000) } },
+        { upsert: true }
+    );
+    
+    return res.status(200).json({
+        message: "Logged out successfully"
+    })
 }
