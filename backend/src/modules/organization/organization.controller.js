@@ -35,7 +35,6 @@ export const roleUpdateController = async(req,res,next)=>{
         const adminOrgId = req.orgId;
         
         if(!mongoose.Types.ObjectId.isValid(userId)) throw new AppError("Invalid UserId",400);
-        // const adminCount = await UserModel.find({role: "admin"});
 
         const { role = "member" } = req.body;
 
