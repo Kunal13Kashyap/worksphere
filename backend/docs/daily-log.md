@@ -435,3 +435,46 @@ Enhance existing Project and Task APIs to support scalable data retrieval using 
 
 ---------------------------------------------------------------------------------------
 
+## Day 12 — Role Update (RBAC Enforcement + Atomic Constraints)
+
+### Objective
+Implement secure role update functionality within an organization while enforcing strict RBAC rules, organization isolation, and atomic database updates
+
+### Completed
+- Implemented role update API for updating user roles within an organization
+- Enforced organization-level constraint:
+    * Users can only be updated within the same orgId
+- Implemented atomic update using single-query findOneAndUpdate:
+    * Combined existence check, org validation, and role comparison in one DB call
+- Prevented redundant updates:
+    * Disallowed updating user to the same role using $ne condition
+- Integrated role validation:
+    * Restricted updates to predefined roles (admin, manager, member)
+- Added ObjectId validation for userId to prevent invalid queries
+- Ensured service-controller separation:
+    * Controller handles validation
+    * Service handles DB logic and constraints
+- Used runValidators to enforce schema-level validation during update
+- Used .lean() for optimized query performance
+
+### Validation
+- Role updates succeed only if:
+    * Target user exists
+    * User belongs to same organization
+    * New role is valid
+    * New role is different from current role
+- Invalid userId is rejected before DB query
+- Unauthorized or invalid updates return 404 (merged constraint failure)
+- No cross-organization role updates are possible
+- No redundant role updates occur
+- API response returns updated user data correctly
+
+### Notes
+- Used constraint-based query approach instead of multiple DB calls for better efficiency and atomicity
+- Merged multiple failure cases (not found, unauthorized, same role) into a single response for simplicity
+- RBAC enforcement relies on middleware for requester validation; service enforces target-level constraints
+- Implementation prioritizes performance, consistency, and clean architecture over granular error differentiation
+- Design aligns with production patterns for secure role management systems
+
+---------------------------------------------------------------------------------------
+

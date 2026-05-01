@@ -19,7 +19,7 @@ export const auth = async(req,res,next) => {
     try{
 
         const decodedData = jwt.verify(token,JWT_SECRET);
-        const user = await UserModel.findById(decodedData.userId);
+        const user = await UserModel.findById(decodedData.userId).select("_id role belongsTo");
          if (!user) {
             return next(new AppError("User not found", 404));
         }

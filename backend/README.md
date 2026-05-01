@@ -30,3 +30,6 @@
 
 # WorkSphere Day 11 Task
 - Added pagination and filtering to Project & Task APIs with search support and optimized queries for scalable and efficient data retrieval
+
+# WorkSphere Day 12 Task
+- Implemented org-scoped role update with RBAC enforcement and atomic single-query validation using findOneAndUpdate

@@ -32,3 +32,17 @@ export const inviteService = async(userEmail,orgId)=>{
     return newInvite._id;
 
 };
+
+export const roleUpdateService = async({targetUserId, adminOrgId, userUpdatedRole})=>{
+    const updateRole = await UserModel.findOneAndUpdate({
+        _id: targetUserId,
+        belongsTo: adminOrgId,
+        role: { $ne: userUpdatedRole }
+    }, {
+        role: userUpdatedRole
+    }, { new: true, runValidators: true }).lean();
+
+    if(!updateRole) throw new AppError("User not found or not authorized",404);
+
+    return updateRole;
+}
