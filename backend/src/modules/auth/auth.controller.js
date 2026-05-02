@@ -6,6 +6,7 @@ import { generateToken } from "../../utils/token.js";
 import AppError from "../../utils/appError.js";
 import { JWT_SECRET } from "../../config/env.js";
 import jwt from "jsonwebtoken";
+import { logAudit } from "../audit/audit.logger.js";
 
 export const signupWithInviteController = async(req,res,next)=>{
     const { email, password, inviteId } = req.body;
@@ -48,11 +49,31 @@ export const loginController = async (req,res,next)=>{
         }
         
         const isPasswordValid = await bcrypt.compare(password,user.password);
-        if(!isPasswordValid){
+            if(!isPasswordValid){
+                await logAudit({
+                action: "LOGIN",
+                actor: user._id,
+                metadata: {
+                    email
+                },
+                status: "failed",
+                ip: req.ip
+            })
             throw new AppError("Invalid Credentials",401);
         }
 
         const token = generateToken(user);
+
+        await logAudit({
+            action: "LOGIN",
+            actor: user._id,
+            metadata: {
+                email: user.email
+            },
+            status: "success",
+            ip: req.ip
+        })
+
         return res.status(200).json({
             success: true,
             message: "Token generated successfully",
@@ -71,6 +92,16 @@ export const logoutController = async (req,res,next)=>{
         { $setOnInsert: { token: req.token, expiresAt: new Date(req.decoded.exp * 1000) } },
         { upsert: true }
     );
+
+    await logAudit({
+        action: "LOGOUT",
+        actor: req.user.userId,
+        metadata: {
+            blacklistToken: req.token
+        },
+        status: "success",
+        ip: req.ip 
+    })
     
     return res.status(200).json({
         message: "Logged out successfully"
